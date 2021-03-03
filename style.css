@@ -8,8 +8,31 @@ body {
 }
 
 .control-panel {
-    width: 200px;
+    /* width: 200px; */
     background: grey;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    display: flex;
+    flex-direction: row;
+    padding: 20px;
+    align-items: flex-start;
+}
+
+.control-panel > div {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.control-panel * {
+    margin: 10px;
+}
+
+.control-panel label {
+    margin: 0 10px;
 }
 
 canvas {

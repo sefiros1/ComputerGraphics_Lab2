@@ -16,7 +16,22 @@
 	</head>
 	<body>
 		<div class="control-panel">
-
+			<div>
+				<button id="js-clear">Clear</button>
+				<button id="js-refl-x">Reflection across X-axis</button>
+				<button id="js-refl-y">Reflection across Y-axis</button>
+				<button id="js-refl-xy">Reflection across f(x)=y</button>
+			</div>
+			<div>
+				<button id="js-scale-pos">Scale x2</button>
+				<button id="js-scale-neg">Scale /2</button>
+			</div>
+			<div>
+				<label for="js-input-x">x:</label>
+				<input id="js-input-x"></input>
+				<label for="js-input-y">y:</label>
+				<input id="js-input-y"></input>
+			</div>
 		</div>
 		<canvas id="js-canvas" width="1000" height="1000"></canvas>
 		<script src="./dist/renderer.js"></script>

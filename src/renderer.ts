@@ -13,6 +13,14 @@ class Point {
         this.z = z;
     }
 
+    getDist = (p: Point): number => {
+        return Math.abs(Math.sqrt(
+            Math.pow(p.x - this.x, 2) + 
+            Math.pow(p.y - this.y, 2) + 
+            Math.pow(p.z - this.z, 2)
+        ))
+    }
+
     toRelative = (): Point => {
         let unitWidth = canvas.width / relativeWidth;
         let unitHeight = canvas.height / relativeHeight;
@@ -67,8 +75,6 @@ class Figure {
     transformedPoints: Point[];
     r: number;
 
-    transform: Matrix3;
-
     constructor(p: Point, scale: number = 12){
         this.center = p;
         let d = scale / 2;
@@ -84,26 +90,28 @@ class Figure {
         this.points[7] = new Point(this.points[6].x - d, this.points[6].y);                                                 //180'
         this.points[8] = new Point(this.points[7].x + d * Math.cos(0.628319), this.points[7].y - d * Math.sin(0.628319));   //36'
         this.points[9] = new Point(this.points[8].x + d * Math.cos(1.88496), this.points[8].y - d * Math.sin(1.88496));     //108'
+        // this.setTransform();
     }
 
-    setTransform = (m: Matrix3) => {
-        this.transform = m;
-        // this.update();
+    transform = (m: Matrix3 = new Matrix3([1,0,0,0,1,0,0,0,1])) => {
+        // this.transform = m;
+        this.update(m);
     }
 
-    addTransform = (m: Matrix3) => {
-        if (this.transform) {
-            this.transform = this.transform.multiplyMatrices(m);
-            // this.update();
-        }
-    }
+    // addTransform = (m: Matrix3) => {
+    //     if (this.transform) {
+    //         // this.transform = this.transform.multiplyMatrices(m);
 
-    // update = () => {
-    //     for (let i = 0; i < this.points.length; i++)
-    //         this.points[i] = this.points[i].multiplyByMatrix(this.transform);
-        
-    //     this.center = this.center.multiplyByMatrix(this.transform);
+    //         this.update(m);
+    //     }
     // }
+
+    update = (t: Matrix3) => {
+        for (let i = 0; i < this.points.length; i++)
+            this.points[i] = this.points[i].multiplyByMatrix(t);
+        
+        this.center = this.center.multiplyByMatrix(t);
+    }
 
     draw = () => {
         this.points.forEach(e => {
@@ -114,21 +122,53 @@ class Figure {
         ctx.strokeStyle = "#000000";
         ctx.beginPath();
         // ctx.moveTo(this.center.toAbsolute().x, this.center.toAbsolute().y);
-        ctx.arc(this.center.multiplyByMatrix(this.transform).toAbsolute().x, this.center.multiplyByMatrix(this.transform).toAbsolute().y, this.r * 10, 0, Math.PI * 2);
+        let r = this.center.getDist(this.points[0]);
+        r = r * (canvas.width / relativeWidth);
+
+        ctx.arc(this.center.toAbsolute().x, this.center.toAbsolute().y, r, 0, Math.PI * 2);
+        // for (let i = 0; i < 5; i++){
+            
+
+        // }
+        
+        // let p1 = this.points[i*2];
+        // let p2 = undefined;
+        // let p3 = this.points[(i < 4 ? i + 1 : 0)*2];
+        // let p1 = this.points[0];
+        // let p3 = this.points[2];
+        // let p2_mod = getPointByFiAndR(this.center.getDist(this.points[0]), (Math.PI / 8) - (Math.PI / 10));
+        // let p2 = new Point(p1.x + p2_mod.x, p1.y - p2_mod.y);
+        // ctx.moveTo(p1.toAbsolute().x, p1.toAbsolute().y);
+        // ctx.arcTo(p2.toAbsolute().x, p2.toAbsolute().y, p3.toAbsolute().x, p3.toAbsolute().y, r);
+
+        // p1 = this.points[2];
+        // p3 = this.points[4];
+        // p2_mod = getPointByFiAndR(this.center.getDist(this.points[0]), (Math.PI / 8) + (Math.PI / 10));
+        // p2 = new Point(p1.x + p2_mod.x, p1.y + p2_mod.y);
+        // console.log(p1)
+        // console.log(p2_mod);
+        // console.log(p2);
+        // ctx.moveTo(p1.toAbsolute().x, p1.toAbsolute().y);
+        // ctx.arcTo(p2.toAbsolute().x, p2.toAbsolute().y, p3.toAbsolute().x, p3.toAbsolute().y, r);
+
         ctx.fillStyle = 'none'
         ctx.stroke();
 
-        drawLine(this.points[0].multiplyByMatrix(this.transform), this.points[1].multiplyByMatrix(this.transform))
-        drawLine(this.points[1].multiplyByMatrix(this.transform), this.points[2].multiplyByMatrix(this.transform))
-        drawLine(this.points[2].multiplyByMatrix(this.transform), this.points[3].multiplyByMatrix(this.transform))
-        drawLine(this.points[3].multiplyByMatrix(this.transform), this.points[4].multiplyByMatrix(this.transform))
-        drawLine(this.points[4].multiplyByMatrix(this.transform), this.points[5].multiplyByMatrix(this.transform))
-        drawLine(this.points[5].multiplyByMatrix(this.transform), this.points[6].multiplyByMatrix(this.transform))
-        drawLine(this.points[6].multiplyByMatrix(this.transform), this.points[7].multiplyByMatrix(this.transform))
-        drawLine(this.points[7].multiplyByMatrix(this.transform), this.points[8].multiplyByMatrix(this.transform))
-        drawLine(this.points[8].multiplyByMatrix(this.transform), this.points[9].multiplyByMatrix(this.transform))
-        drawLine(this.points[9].multiplyByMatrix(this.transform), this.points[0].multiplyByMatrix(this.transform))
+        drawLine(this.points[0], this.points[1])
+        drawLine(this.points[1], this.points[2])
+        drawLine(this.points[2], this.points[3])
+        drawLine(this.points[3], this.points[4])
+        drawLine(this.points[4], this.points[5])
+        drawLine(this.points[5], this.points[6])
+        drawLine(this.points[6], this.points[7])
+        drawLine(this.points[7], this.points[8])
+        drawLine(this.points[8], this.points[9])
+        drawLine(this.points[9], this.points[0])
     }
+}
+
+function getPointByFiAndR(r: number, fi: number): Point{
+    return new Point(r*Math.cos(fi), r*Math.sin(fi));
 }
 
 function drawLine(p1: Point, p2: Point, color: string = "#000000") {
@@ -141,7 +181,6 @@ function drawLine(p1: Point, p2: Point, color: string = "#000000") {
 }
 
 function drawCircle(p: Point, r: number, color: string = "#000000") {
-    console.log(p);
     var ctx = canvas.getContext("2d");
     ctx.beginPath();
     ctx.moveTo(p.toAbsolute().x, p.toAbsolute().y);
@@ -212,55 +251,158 @@ function update() {
     drawCoordinatePlane();
     // figure.update();
     figure.draw();
+    figures.forEach(f => f.draw())
 }
 
 var figure: Figure;
 
 function main() {
-    drawCoordinatePlane();
     figure = new Figure(new Point(0,0));
-    figure.setTransform(new Matrix3(
-        [ 
-            1, 0, 5,
-            0, 1, 0,
-            0, 0, 1
-        ]
-    ))
-    figure.addTransform(new Matrix3(
-        [ 
-            1, 0, 0,
-            0, 1, 10,
-            0, 0, 1
-        ]
-    ))
-    figure.draw();
-   setInterval(update, 5)
+    
+    // let t = new Matrix3([
+    //     3, 0, 0,
+    //     0, 3, 0,
+    //     0, 0, 1
+    // ])
+    // figure.setTransform(t);
+    update();
+    setInterval(update, 100)
 
-   document.addEventListener('keypress', (e) => {
-        let t = new Matrix3(
-            [ 
-                1, 0, 0,
-                0, 1, 0,
-                0, 0, 1
-            ]
-        )
+    document.querySelector('#js-clear').addEventListener('click', () => {
+        // figure.setTransform()
+        figure = new Figure(new Point(0, 0));
+    })
+
+    document.querySelector('#js-refl-x').addEventListener('click', () => {
+        let t = new Matrix3([
+            1,  0, 0,
+            0, -1, 0,
+            0,  0, 1
+        ])
+        figure.transform(t);
+    })
+
+    document.querySelector('#js-refl-y').addEventListener('click', () => {
+        let t = new Matrix3([
+            -1, 0, 0,
+             0, 1, 0,
+             0, 0, 1
+        ])
+        figure.transform(t);
+    })
+
+    document.querySelector('#js-refl-xy').addEventListener('click', () => {
+        let t = new Matrix3([
+            0, 1, 0,
+            1, 0, 0,
+            0, 0, 1
+        ])
+        figure.transform(t);
+    })
+
+    document.querySelector('#js-scale-pos').addEventListener('click', () => {
+        let t = new Matrix3([
+            2, 0, 0,
+            0, 2, 0,
+            0, 0, 1
+        ])
+        figure.transform(t);
+    })
+
+    document.querySelector('#js-scale-neg').addEventListener('click', () => {
+        let t = new Matrix3([
+            1/2,   0, 0,
+              0, 1/2, 0,
+              0,   0, 1
+        ])
+        figure.transform(t);
+    })
+
+    document.addEventListener('keypress', (e) => {
+        let fi = Math.PI/36
+        let x0 = parseInt(document.querySelector<HTMLInputElement>('#js-input-x').value);
+        let y0 = parseInt(document.querySelector<HTMLInputElement>('#js-input-y').value);
+        if (isNaN(x0)) x0 = 0;
+        if (isNaN(y0)) y0 = 0;
         switch(e.key.toLowerCase()){
             case 'd':
-                t = t.multiplyMatrices(new Matrix3([1, 0, 1, 0, 1, 0, 0, 0, 1]))
+                figure.transform(new Matrix3([1, 0, 1, 0, 1, 0, 0, 0, 1]))
                 break;
             case 'a':
-                t = t.multiplyMatrices(new Matrix3([1, 0, -1, 0, 1, 0, 0, 0, 1]))
+                figure.transform(new Matrix3([1, 0, -1, 0, 1, 0, 0, 0, 1]))
                 break;
             case 'w':
-                t = t.multiplyMatrices(new Matrix3([1, 0, 0, 0, 1, 1, 0, 0, 1]))
+                figure.transform(new Matrix3([1, 0, 0, 0, 1, 1, 0, 0, 1]))
                 break;
             case 's':
-                t = t.multiplyMatrices(new Matrix3([1, 0, 0, 0, 1, -1, 0, 0, 1]))
+                figure.transform(new Matrix3([1, 0, 0, 0, 1, -1, 0, 0, 1]))
                 break;
+            case 'q':
+                rotateFigure(figure, fi, new Point(x0, y0))
+                break;
+            case 'e':
+                rotateFigure(figure, -fi, new Point(x0, y0))
+                break;
+            case 'c':
+                figure = new Figure(new Point(0, 0));
+                break;
+            case 'p':
+                letItSnow();
         }
-        if (e.ctrlKey) t = t.multiplyMatrices(new Matrix3([1, 0, 10, 0, 1, 10, 0, 0, 1]))
-        figure.addTransform(t)
+        // if (e.ctrlKey) t = t.multiplyMatrices(new Matrix3([1, 0, 10, 0, 1, 10, 0, 0, 1]))
+        
    })
 }
 
+function rotateFigure(figure: Figure, fi:number, p:Point){
+    figure.transform(new Matrix3([
+        1, 0, -p.x,
+        0, 1, -p.y,
+        0, 0, 1
+    ]))
+    figure.transform(new Matrix3([
+        Math.cos(fi), -Math.sin(fi), 0,
+        Math.sin(fi),  Math.cos(fi), 0,
+                    0,            0, 1
+    ]))
+    figure.transform(new Matrix3([
+        1, 0, p.x,
+        0, 1, p.y,
+        0, 0, 1
+    ]))
+}
+
 document.addEventListener("DOMContentLoaded", main)
+
+
+
+
+var figures: Figure[] = [];
+
+function letItSnow() {
+    // for (let i = 0; i < 20; i++){
+    let figure = new Figure(new Point(getRandomInt(-50, 50), 70));
+    let t = -.1;
+    let offset = 0;
+    let timer = setInterval(() => {
+        figure.transform(new Matrix3([1,0,0,0,1,-.1,0,0,1]))
+        let leftRotate = getRandomInt(0, 1) === 0
+        rotateFigure(figure, leftRotate ? 1 : -1, figure.center);
+        if (Math.abs(offset) > getRandomInt(2,10)) t *= -1;
+        offset += t;
+        figure.transform(new Matrix3([1,0,t,0,1,0,0,0,1]))
+
+        if (figure.center.y < -70){
+            clearInterval(timer);
+            figures.pop();
+        }
+    }, 10)
+    figures.unshift(figure);
+    // }
+}
+
+function getRandomInt(min: number, max: number) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min; //Максимум не включается, минимум включается
+  }
